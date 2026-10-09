@@ -21,8 +21,8 @@ Verifikasi instalasi:
 
 ```powershell
 node -v
-npm -v
-npx -v
+npm.cmd -v
+npx.cmd -v
 ```
 
 ### 2. Install Git
@@ -34,7 +34,7 @@ winget install -e --id Git.Git
 ### 3. Install Claude Code
 
 ```powershell
-npm install -g @anthropic-ai/claude-code
+npm.cmd install -g @anthropic-ai/claude-code
 ```
 
 ### 4. Set Environment Variable untuk API DeepSeek
