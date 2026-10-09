@@ -14,6 +14,7 @@ Panduan singkat memasang dan mengonfigurasi Claude Code di Windows, termasuk pen
 ### 1. Install Node.JS
 
 ```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 winget install OpenJS.NodeJS.LTS
 ```
 
@@ -21,8 +22,8 @@ Verifikasi instalasi:
 
 ```powershell
 node -v
-npm.cmd -v
-npx.cmd -v
+npm -v
+npx -v
 ```
 
 ### 2. Install Git
@@ -34,7 +35,7 @@ winget install -e --id Git.Git
 ### 3. Install Claude Code
 
 ```powershell
-npm.cmd install -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code
 ```
 
 ### 4. Set Environment Variable untuk API DeepSeek
