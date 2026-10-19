@@ -2,7 +2,16 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
-  "model": "opus",
+  "model": "haiku",
+  "effortLevel": "high",
+  "modelSettings": {
+    "deepseek-v4-pro": {
+      "effortLevel": "xhigh"
+    },
+    "deepseek-v4-flash": {
+      "effortLevel": "xhigh"
+    }
+  },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
