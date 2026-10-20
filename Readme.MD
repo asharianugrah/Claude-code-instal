@@ -4,6 +4,8 @@ Panduan memasang dan mengonfigurasi **Claude Code CLI** serta **Claude Desktop m
 
 Panduan macOS tersedia di [macOS.md](macOS.md).
 
+Panduan menghubungkan add-in **Claude for Microsoft Office (Word & Excel)** ke gateway yang sama tersedia di [office-addin-gateway.md](office-addin-gateway.md).
+
 > Tutorial ini disusun dari implementasi pada Windows 11 dengan Claude Desktop `2.42304.2.0` dan API DeepSeek yang kompatibel dengan Anthropic Messages API. Nama menu dan tampilan dapat berubah pada versi Claude Desktop yang lebih baru.
 
 ---
