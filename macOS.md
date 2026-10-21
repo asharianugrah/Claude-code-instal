@@ -195,7 +195,7 @@ Isi form koneksi:
 Penting:
 
 - Base URL **tidak boleh** berakhiran `/v1`. Claude Desktop menambahkan sendiri `/v1/messages` dan `/v1/models`.
-- Gunakan **API key statis**. Opsi **Sign in with gateway** memakai OIDC/SSO dan tidak didukung DeepSeek.
+- Gunakan **API key statis**. Opsi **Sign in with gateway** melakukan login OIDC ke identity provider (Entra ID, Okta, Keycloak, dan sejenisnya) lalu mengirim JWT ke gateway. DeepSeek tidak menyediakan OIDC dan tidak memvalidasi JWT, jadi opsi ini tidak bisa dipakai. Jika benar-benar dibutuhkan, letakkan DeepSeek di belakang gateway yang memvalidasi JWT (misalnya LiteLLM/Envoy/Kong/Portkey).
 - Jangan mengaktifkan model discovery. DeepSeek tidak menyediakan `/v1/models`; Claude Desktop akan menampilkan error 404.
 
 ## 4. Daftar Model
@@ -243,10 +243,12 @@ high
 
 ## 5. Terapkan dan Restart
 
-1. Klik **Apply**.
-2. Keluar sepenuhnya dari Claude Desktop (`⌘Q`).
-3. Buka kembali Claude Desktop.
-4. Buka pemilih model. Anda harus melihat empat entri DeepSeek di atas.
+1. Jika tersedia, klik **Test connection**.
+2. Klik **Apply**.
+3. Keluar sepenuhnya dari Claude Desktop (`⌘Q`).
+4. Buka kembali Claude Desktop.
+5. Jika muncul layar login, pilih opsi **gateway/third-party inference**, bukan “Sign in with Claude.ai”.
+6. Buka pemilih model. Anda harus melihat empat entri DeepSeek di atas.
 
 ## 6. Verifikasi
 
@@ -267,9 +269,9 @@ Baris yang menandakan konfigurasi berhasil:
 
 Jika `picker = 0 (empty)`, daftar model tidak terbaca. Periksa kembali alias model dan JSON.
 
-## 7. Konfigurasi Lokal (Advanced)
+## 7. Advanced: local config library (macOS)
 
-Claude Desktop 3P menyimpan konfigurasi lokal di:
+In-app configuration adalah cara yang disarankan. Jika perlu otomatisasi atau managed preferences (`/Library/Managed Preferences`) terkunci (read-only), Claude Desktop juga membaca konfigurasi lokal dari:
 
 ```text
 ~/Library/Application Support/Claude-3p/configLibrary/
@@ -283,14 +285,14 @@ configLibrary/
 └── <uuid>.json
 ```
 
-`_meta.json`:
+Contoh `_meta.json`:
 
 ```json
 {
-  "appliedId": "<uuid>",
+  "appliedId": "11111111-1111-1111-1111-111111111111",
   "entries": [
     {
-      "id": "<uuid>",
+      "id": "11111111-1111-1111-1111-111111111111",
       "name": "DeepSeek Gateway"
     }
   ]
@@ -332,20 +334,64 @@ configLibrary/
 }
 ```
 
-Pastikan `appliedId` sama dengan nama file `<uuid>.json`.
+Pastikan `deploymentMode` di `~/Library/Application Support/Claude-3p/claude_desktop_config.json` bernilai `"3p"`. Tutup dan buka kembali Claude Desktop setelah mengubah file.
 
-Mode deployment disimpan di:
+> API key tersimpan plaintext di file ini. Lindungi akses ke akun macOS Anda dan jangan membagikan folder `Claude-3p`.
 
-```text
-~/Library/Application Support/Claude-3p/claude_desktop_config.json
-```
+### Script zsh (opsional)
 
-Nilai yang diperlukan:
+Script berikut membuat config library dari environment variable, tanpa menuliskan key ke dalam script:
 
-```json
-{
-  "deploymentMode": "3p"
-}
+```zsh
+#!/bin/zsh
+set -euo pipefail
+
+: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY belum diset. Tambahkan ke ~/.zshrc lalu jalankan source ~/.zshrc.}"
+
+DIR="$HOME/Library/Application Support/Claude-3p/configLibrary"
+mkdir -p "$DIR"
+if [ -f "$DIR/_meta.json" ]; then
+  cp "$DIR/_meta.json" "$DIR/_meta.json.bak"
+fi
+
+ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+export ANTHROPIC_API_KEY ID DIR
+
+node <<'JS'
+const fs = require("node:fs");
+const path = require("node:path");
+
+const models = [
+  { name: "claude-haiku-4-5", labelOverride: "DeepSeek Flash (Haiku)", anthropicFamilyTier: "haiku" },
+  { name: "claude-sonnet-4-5", labelOverride: "DeepSeek Flash (Sonnet)", anthropicFamilyTier: "sonnet" },
+  { name: "claude-opus-4-5", labelOverride: "DeepSeek V4 Pro (Opus)", anthropicFamilyTier: "opus" },
+  { name: "claude-opus-4-5[1m]", labelOverride: "DeepSeek V4 Pro (Opus, 1M)" },
+];
+
+const cfg = {
+  inferenceProvider: "gateway",
+  inferenceGatewayBaseUrl: "https://api.deepseek.com/anthropic",
+  inferenceGatewayApiKey: process.env.ANTHROPIC_API_KEY,
+  inferenceGatewayAuthScheme: "x-api-key",
+  inferenceCredentialKind: "static",
+  modelDiscoveryEnabled: false,
+  inferenceModels: models,
+  defaultModelEffort: "high",
+};
+const meta = {
+  appliedId: process.env.ID,
+  entries: [{ id: process.env.ID, name: "DeepSeek Gateway" }],
+};
+
+const dir = process.env.DIR;
+fs.writeFileSync(path.join(dir, process.env.ID + ".json"), JSON.stringify(cfg, null, 2) + "\n");
+fs.writeFileSync(path.join(dir, "_meta.json"), JSON.stringify(meta, null, 2) + "\n");
+JS
+
+chmod 700 "$DIR"
+chmod 600 "$DIR"/*.json
+
+echo "Config ditulis ke $DIR. Tutup dan buka kembali Claude Desktop."
 ```
 
 ## 8. Managed Profile (Opsional, Administrator)
