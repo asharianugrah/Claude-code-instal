@@ -6,7 +6,7 @@ Panduan macOS tersedia di [macOS.md](macOS.md).
 
 Panduan menghubungkan add-in **Claude for Microsoft Office (Word & Excel)** ke gateway yang sama tersedia di [office-addin-gateway.md](office-addin-gateway.md).
 
-> Tutorial ini disusun dari implementasi pada Windows 11 dengan Claude Desktop `2.42304.2.0` dan API DeepSeek yang kompatibel dengan Anthropic Messages API. Nama menu dan tampilan dapat berubah pada versi Claude Desktop yang lebih baru.
+> Tutorial ini disusun dari implementasi pada Windows 11 dengan Claude Desktop `4.29.0.0` dan API DeepSeek yang kompatibel dengan Anthropic Messages API. Nama menu dan tampilan dapat berubah pada versi Claude Desktop yang lebih baru.
 
 ---
 
@@ -190,28 +190,29 @@ Tambahkan model berikut. Entri pertama menjadi default.
   {
     "name": "claude-haiku-4-5",
     "labelOverride": "DeepSeek Flash (Haiku)",
-    "anthropicFamilyTier": "haiku"
+    "anthropicFamilyTier": "haiku",
+    "supports1m": true
   },
   {
     "name": "claude-sonnet-4-5",
     "labelOverride": "DeepSeek Flash (Sonnet)",
-    "anthropicFamilyTier": "sonnet"
+    "anthropicFamilyTier": "sonnet",
+    "supports1m": true
   },
   {
     "name": "claude-opus-4-5",
     "labelOverride": "DeepSeek V4 Pro (Opus)",
-    "anthropicFamilyTier": "opus"
-  },
-  {
-    "name": "claude-opus-4-5[1m]",
-    "labelOverride": "DeepSeek V4 Pro (Opus, 1M)"
+    "anthropicFamilyTier": "opus",
+    "supports1m": true
   }
 ]
 ```
 
 Catatan:
 
-- `claude-opus-4-5[1m]` adalah varian 1M. DeepSeek mengabaikan header `anthropic-beta`, jadi aman untuk dicoba. Model `claude-opus*` tetap dipetakan ke `deepseek-v4-pro`.
+- `supports1m: true` membuat Claude Desktop **menurunkan sendiri** varian 1M untuk entri tersebut. Anda tidak perlu (dan tidak boleh) menambahkan entri `[1m]` terpisah — entri manual menghasilkan baris ganda di picker.
+- `prefer1m: true` menyembunyikan opsi 200k, menyisakan satu baris per model yang langsung meminta 1M. Alternatif global: `modelPrefer1mContext: true`.
+- DeepSeek mengabaikan header `anthropic-beta`, jadi permintaan 1M aman dikirim.
 - `defaultModelEffort` dapat diisi `high` (atau `xhigh`) bila ingin menyamakan dengan CLI.
 - `anthropicFamilyTier` membantu aplikasi menyelesaikan alias seperti `sonnet`/`opus`/`haiku`.
 - Label dapat berubah pada picker karena aplikasi juga membaca model catalog Anthropic. `labelOverride` tetap dipakai untuk model yang tidak ada di catalog.
@@ -235,7 +236,7 @@ Baris yang menandakan konfigurasi berhasil:
 
 ```text
 [custom-3p] 3P mode active { provider: 'gateway' }
-[custom-3p] Model discovery: not supported by provider; picker = 4 (inferenceModels)
+[custom-3p] Model discovery: not supported by provider; picker = 3 (inferenceModels)
 [custom-3p] inference apiHost=https://api.deepseek.com/anthropic
 [custom-3p] ConfigHealth recomputed { state: 'healthy', provider: 'gateway' }
 ```
@@ -293,21 +294,20 @@ Contoh `<uuid>.json`:
     {
       "name": "claude-haiku-4-5",
       "labelOverride": "DeepSeek Flash (Haiku)",
-      "anthropicFamilyTier": "haiku"
+      "anthropicFamilyTier": "haiku",
+      "supports1m": true
     },
     {
       "name": "claude-sonnet-4-5",
       "labelOverride": "DeepSeek Flash (Sonnet)",
-      "anthropicFamilyTier": "sonnet"
+      "anthropicFamilyTier": "sonnet",
+      "supports1m": true
     },
     {
       "name": "claude-opus-4-5",
       "labelOverride": "DeepSeek V4 Pro (Opus)",
-      "anthropicFamilyTier": "opus"
-    },
-    {
-      "name": "claude-opus-4-5[1m]",
-      "labelOverride": "DeepSeek V4 Pro (Opus, 1M)"
+      "anthropicFamilyTier": "opus",
+      "supports1m": true
     }
   ],
   "defaultModelEffort": "high"
@@ -334,10 +334,9 @@ if (Test-Path (Join-Path $dir '_meta.json')) {
 
 $id = [guid]::NewGuid().ToString()
 $models = @(
-    @{ name = 'claude-haiku-4-5';  labelOverride = 'DeepSeek Flash (Haiku)';  anthropicFamilyTier = 'haiku' },
-    @{ name = 'claude-sonnet-4-5'; labelOverride = 'DeepSeek Flash (Sonnet)'; anthropicFamilyTier = 'sonnet' },
-    @{ name = 'claude-opus-4-5';   labelOverride = 'DeepSeek V4 Pro (Opus)';   anthropicFamilyTier = 'opus' },
-    @{ name = 'claude-opus-4-5[1m]'; labelOverride = 'DeepSeek V4 Pro (Opus, 1M)' }
+    @{ name = 'claude-haiku-4-5';  labelOverride = 'DeepSeek Flash (Haiku)';  anthropicFamilyTier = 'haiku';  supports1m = $true },
+    @{ name = 'claude-sonnet-4-5'; labelOverride = 'DeepSeek Flash (Sonnet)'; anthropicFamilyTier = 'sonnet'; supports1m = $true },
+    @{ name = 'claude-opus-4-5';   labelOverride = 'DeepSeek V4 Pro (Opus)';   anthropicFamilyTier = 'opus';   supports1m = $true }
 )
 $cfg = [ordered]@{
     inferenceProvider          = 'gateway'
