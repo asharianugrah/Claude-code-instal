@@ -62,9 +62,9 @@ Jalankan di PowerShell. Ganti `<API_KEY_DEEPSEEK>` dengan API key milik Anda.
 [System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://api.deepseek.com/anthropic', 'User')
 
 [System.Environment]::SetEnvironmentVariable('ANTHROPIC_MODEL', 'deepseek-v4-flash', 'User')
-[System.Environment]::SetEnvironmentVariable('ANTHROPIC_DEFAULT_OPUS_MODEL', 'deepseek-v4-pro[1m]', 'User')
-[System.Environment]::SetEnvironmentVariable('ANTHROPIC_DEFAULT_SONNET_MODEL', 'deepseek-v4-flash-vision-exp', 'User')
 [System.Environment]::SetEnvironmentVariable('ANTHROPIC_DEFAULT_HAIKU_MODEL', 'deepseek-v4-flash', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_DEFAULT_SONNET_MODEL', 'deepseek-v4-flash', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_DEFAULT_OPUS_MODEL', 'deepseek-v4-pro', 'User')
 [System.Environment]::SetEnvironmentVariable('CLAUDE_CODE_SUBAGENT_MODEL', 'deepseek-v4-flash', 'User')
 
 [System.Environment]::SetEnvironmentVariable('CLAUDE_EFFORT', 'high', 'User')
@@ -335,7 +335,6 @@ if (Test-Path (Join-Path $dir '_meta.json')) {
 $id = [guid]::NewGuid().ToString()
 $models = @(
     @{ name = 'claude-haiku-4-5';  labelOverride = 'DeepSeek Flash (Haiku)';  anthropicFamilyTier = 'haiku';  supports1m = $true },
-    @{ name = 'claude-sonnet-4-5'; labelOverride = 'DeepSeek Flash (Sonnet)'; anthropicFamilyTier = 'sonnet'; supports1m = $true },
     @{ name = 'claude-opus-4-5';   labelOverride = 'DeepSeek V4 Pro (Opus)';   anthropicFamilyTier = 'opus';   supports1m = $true }
 )
 $cfg = [ordered]@{
