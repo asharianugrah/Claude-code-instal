@@ -69,7 +69,7 @@ Jalankan di PowerShell. Ganti `<API_KEY_DEEPSEEK>` dengan API key milik Anda.
 
 [System.Environment]::SetEnvironmentVariable('CLAUDE_EFFORT', 'high', 'User')
 [System.Environment]::SetEnvironmentVariable('CLAUDE_CODE_EFFORT_LEVEL', 'high', 'User')
-[System.Environment]::SetEnvironmentVariable('CLAUDE_CODE_AUTO_COMPACT_WINDOW', '1000000', 'User')
+[System.Environment]::SetEnvironmentVariable('CLAUDE_CODE_AUTO_COMPACT_WINDOW', '780000', 'User')
 ```
 
 Opsional, untuk mengurangi telemetri/atribusi:
